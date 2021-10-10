@@ -53,10 +53,7 @@ namespace HashtablePerformanceTest
 
             foreach (var s in source)
             {
-                if (!hashSet.Contains(s))
-                {
-                    hashSet.Add(s);
-                }
+                hashSet.Add(s);
             }
 
             return hashSet;
