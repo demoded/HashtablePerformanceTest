@@ -10,6 +10,13 @@ Short test to compare performance of HashTable, Dictionary and HashSet
 .Net 5 (Intel i7-10700)
 |                Method |    Mean |    Error |   StdDev | Allocated |
 |---------------------- |--------:|---------:|---------:|----------:|
+|  AddUniqueToHashTable | 3.254 s | 0.0329 s | 0.0275 s |  1,089 MB |
+| AddUniqueToDictionary | 1.891 s | 0.0345 s | 0.0323 s |    630 MB |
+|    AddUniqueToHashSet | 1.203 s | 0.0203 s | 0.0189 s |    450 MB |
+
+.Net 5 (Intel i7-10700)
+|                Method |    Mean |    Error |   StdDev | Allocated |
+|---------------------- |--------:|---------:|---------:|----------:|
 |  AddUniqueToHashTable | 3.623 s | 0.0680 s | 0.0668 s |  1,089 MB |
 | AddUniqueToDictionary | 2.048 s | 0.0184 s | 0.0164 s |    630 MB |
 |    AddUniqueToHashSet | 1.350 s | 0.0268 s | 0.0385 s |    450 MB |
