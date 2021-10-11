@@ -1,75 +1,34 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
+using HashtablePerformance.Target;
 
 namespace HashtablePerformanceTest
 {
-    [MemoryDiagnoser]
-    public class HashDataTypes
+    public static class Program
     {
-
-        private static Random _rand = new Random(1);
-        List<string> source = Enumerable.Range(0, 10000000).Select(i => _rand.Next(100000000).ToString()).ToList();
-
-        [Benchmark]
-        public Hashtable AddUniqueToHashTable()
+        public static void Main()
         {
-            Hashtable hashTable = new Hashtable();
-
-            foreach (var s in source)
+#if RELEASE
+            _ = BenchmarkRunner.Run(typeof(HashDataTypesTests).Assembly);
+#endif
+#if DEBUG
+            var test = new HashDataTypesTests();
+            test.Setup();
+            var result = test.AddUniqueToHashTableLessMemory();
+            var result2 = test.AddUniqueToHashTable();
+            System.Console.WriteLine(result.Count == result2.Count);
+            for (var i = 0; i < result2.Count; i++)
             {
-                if (hashTable[s] == null)
-                {
-                    hashTable.Add(s, s);
-                }
+                if (result[i] != result2[i]) throw new System.Exception("mismach!");
             }
 
-            return hashTable;
-        }
-
-        [Benchmark]
-        public Dictionary<string, string> AddUniqueToDictionary()
-        {
-            Dictionary<string, string> dictionary = new Dictionary<string, string>();
-
-            foreach (var s in source)
+            var dicResult = test.AddUniqueToDictionaryLessMemory();
+            var dicResult2 = test.AddUniqueToDictionary();
+            System.Console.WriteLine(dicResult.Count == dicResult2.Count);
+            for (var i = 0; i < test.Source.Count; i++)
             {
-                if (!dictionary.ContainsKey(s))
-                {
-                    dictionary.Add(s, s);
-                }
+                if (dicResult[test.Source[i]] != dicResult2[test.Source[i]]) throw new System.Exception("mismach!");
             }
-
-            return dictionary;
-        }
-
-        [Benchmark]
-        public HashSet<string> AddUniqueToHashSet()
-        {
-            HashSet<string> hashSet = new HashSet<string>();
-
-            foreach (var s in source)
-            {
-                hashSet.Add(s);
-            }
-
-            return hashSet;
-        }
-    }
-
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var summary = BenchmarkRunner.Run(typeof(Program).Assembly);
-
-            //var run = new HashDataTypes();
-            //var a = run.AddUniqueToHashTable();
-            //var b = run.AddUniqueToDictionary();
-            //var c = run.AddUniqueToHashSet();
+#endif
         }
     }
 }
