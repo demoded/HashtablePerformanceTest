@@ -8,8 +8,7 @@ using System.Linq;
 namespace HashtablePerformance.Target
 {
     [MemoryDiagnoser]
-    [SimpleJob(RuntimeMoniker.Net472, baseline: true)]
-    [SimpleJob(RuntimeMoniker.Net48)]
+    [SimpleJob(RuntimeMoniker.Net48, baseline: true)]
     [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [SimpleJob(RuntimeMoniker.Net50)]
     [SimpleJob(RuntimeMoniker.Net60)]
@@ -17,31 +16,15 @@ namespace HashtablePerformance.Target
     public class HashDataTypesTests
     {
         private readonly static Random _rand = new Random(42);
-        private List<string> source;
+        public List<string> Source;
 
         [Params(10_000_000)]
-        public int N;
+        public int N = 10_000_000;
 
         [GlobalSetup]
         public void Setup()
         {
-            source = Enumerable.Range(0, N).Select(_ => _rand.Next(N).ToString()).ToList();
-        }
-
-        [Benchmark]
-        public Hashtable AddUniqueToHashTableNew()
-        {
-            var hashTable = new Hashtable(source.Count, 1.0f);
-
-            for (var i = 0; i > source.Count; ++i)
-            {
-                if (hashTable[source[i]] is null)
-                {
-                    hashTable.Add(source[i], source[i]);
-                }
-            }
-
-            return hashTable;
+            Source = Enumerable.Range(0, N).Select(_ => _rand.Next(N).ToString()).ToList();
         }
 
         [Benchmark]
@@ -49,7 +32,7 @@ namespace HashtablePerformance.Target
         {
             Hashtable hashTable = new Hashtable();
 
-            foreach (var s in source)
+            foreach (var s in Source)
             {
                 if (hashTable[s] == null)
                 {
@@ -61,11 +44,43 @@ namespace HashtablePerformance.Target
         }
 
         [Benchmark]
+        public Hashtable AddUniqueToHashTableLessMemory()
+        {
+            var hashTable = new Hashtable(Source.Count, 1.0f);
+
+            foreach (var s in Source)
+            {
+                if (hashTable[s] == null)
+                {
+                    hashTable.Add(s, s);
+                }
+            }
+
+            return hashTable;
+        }
+
+        [Benchmark]
+        public Dictionary<string, string> AddUniqueToDictionaryLessMemory()
+        {
+            var dictionary = new Dictionary<string, string>(Source.Count);
+
+            foreach (var s in Source)
+            {
+                if (!dictionary.ContainsKey(s))
+                {
+                    dictionary.Add(s, s);
+                }
+            }
+
+            return dictionary;
+        }
+
+        [Benchmark]
         public Dictionary<string, string> AddUniqueToDictionary()
         {
             var dictionary = new Dictionary<string, string>();
 
-            foreach (var s in source)
+            foreach (var s in Source)
             {
                 if (!dictionary.ContainsKey(s))
                 {
@@ -81,7 +96,7 @@ namespace HashtablePerformance.Target
         {
             var hashSet = new HashSet<string>();
 
-            foreach (var s in source)
+            foreach (var s in Source)
             {
                 hashSet.Add(s);
             }
